@@ -1,3 +1,3 @@
-- login
-- registration
-- save message as strings
+- login : Thathsara
+- registration : Sisi
+- save message as strings : Sudaraka
