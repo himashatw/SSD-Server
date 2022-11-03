@@ -1,0 +1,3 @@
+- login
+- registration
+- save message as strings
