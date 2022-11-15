@@ -52,6 +52,7 @@ app.get("/", (req, res) => {
   res.send("Hello World from index route");
 });
 
+// TEST ROUTE FOR AUTH0
 app.get("/protected", async (req, res) => {
   console.log(req.auth);
   const accessToken = req.headers.authorization.split(" ")[1];
@@ -114,12 +115,35 @@ app.post(
 
     try {
       await newFile.save();
-      res.status(200).json({ message: "Message stored successfully" });
+      res.status(200).json({ message: "File stored successfully" });
     } catch (error) {
       res.status(409).json({ message: error.message });
     }
   }
 );
+
+app.post("/manager-validate-msg", checkPermissionsManager, async (req, res) => {
+  if (!req.auth.permissions.includes("read:managers")) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const { message, email } = req.body;
+
+  const hashedMessage = await bcrypt.hash(message, 10);
+
+  // save new message
+  const newMessage = new MessageModel({
+    email,
+    text: hashedMessage,
+  });
+
+  try {
+    await newMessage.save();
+    res.status(200).json({ message: "Message stored successfully" });
+  } catch (error) {
+    res.status(409).json({ message: error.message });
+  }
+});
 
 mongoose.connect(process.env.MONGO_URL, (error) => {
   if (error) throw error;
