@@ -14,6 +14,9 @@ const PORT = process.env.PORT || 8080;
 require("dotenv").config();
 app.use(cors());
 app.use(express.json());
+const https = require("https");
+const path = require("path");
+const fs = require("fs");
 
 const fileFilter = (req, res, cb) => {
   cb(null, true);
@@ -51,6 +54,15 @@ app.use(verifyToken);
 app.get("/", (req, res) => {
   res.send("Hello World from index route");
 });
+
+// ssl server
+const sslServer = https.createServer(
+  {
+    key: fs.readFileSync(path.join(__dirname, "cert", "key.pem")),
+    cert: fs.readFileSync(path.join(__dirname, "cert", "cert.pem")),
+  },
+  app
+);
 
 // TEST ROUTE FOR AUTH0
 app.get("/protected", async (req, res) => {
@@ -156,6 +168,6 @@ mongoose.connection.on("error", () =>
   console.log("MongoDB Connection Unsuccessfull")
 );
 
-app.listen(PORT, () => {
-  console.log("Server running on PORT : " + PORT);
+sslServer.listen(PORT, () => {
+  console.log("Secure server running on PORT : " + PORT);
 });
